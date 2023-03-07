@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# get current branch
+branchName=$(git symbolic-ref --short HEAD)
+
+# get jira id from branch name
+jiraId=$(echo "$branchName" | grep -oE "[a-zA-Z0-9]+-[0-9]+") 
+
+
+HOOK_FILE=$1
+COMMIT_MSG=`head -n1 $HOOK_FILE`
+
+PATTERN="^[a-zA-Z0-9]+-[0-9]+"
+
+# check if commit message has jira id 
+if [[ ! ${COMMIT_MSG} =~ $PATTERN ]]; then
+	# if not check branch name has jira id 
+	if [[ ! -z $jiraId ]]; then
+		echo "Adding Jira Id from branch name to commit"
+		echo "${jiraId}: $(cat $1)" > "$1"
+	else  
+		# Jira id not found in both commt msg and jira id
+		echo ""
+		echo "    ERROR! Bad commit message. "
+		echo "    '$COMMIT_MSG' is missing JIRA Ticket Number."
+		echo "    To skip this check use the -n or --no-verify"
+		echo ""
+		exit 1
+	fi
+fi
