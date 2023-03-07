@@ -1,3 +1,7 @@
 # Test-feature
 
-## h2
+to use githooks 
+
+`
+git config --local core.hooksPath .githooks/
+`
